@@ -24,19 +24,19 @@ class TriviaTestCase(unittest.TestCase):
             self.db.init_app(self.app)
             # create all tables
             self.db.create_all()
-    
+
     def tearDown(self):
         """Executed after reach test"""
         pass
 
-    def get_questions_by_category_works(self):
+    def test_get_questions_by_category_works(self):
         response = self.client().get('/categories/10/questions')
         data = json.loads(response.data)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(len(response[0]['questions']) > 0)
         self.assertTrue(response[0]['total_questions'] > 0)
 
-    def create_question_works(self):
+    def test_create_question_works(self):
         question = {
             'question': 'Is Flask a Python framework?',
             'answer': 'Yes, it is.',
@@ -48,9 +48,8 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(respone.status_code, 200)
         self.assertTrue(data[0]['success'])
 
-
     # posting a question with a missing parameter
-    def create_question_returns_404(self):
+    def test_create_question_returns_404(self):
         question = {
             'question': 'Is Flask a Python framework?',
             'category': '1',
@@ -61,7 +60,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(check.status_code, 400)
         self.assertEqual(data['success'], False)
 
-    def search_question_works(self):
+    def test_search_question_works(self):
         search_term = {
             'searchTerm': 'Flask',
         }
@@ -71,7 +70,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(len(data['questions']) > 0)
         self.assertTrue(data['total_questions'] > 0)
 
-    def get_categories_work(self):
+    def test_get_categories_work(self):
         # first create a new category and post to the categories endpoint
         category = {
             'type': 'Education'
@@ -83,8 +82,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['success'])
         self.assertTrue(len(data['categories']) > 0)
 
-
-    def get_all_categories_returns_405(self):
+    def test_get_all_categories_returns_405(self):
         # sending a different method to the categories url
         response = self.client().put('/categories')
         data = json.loads(response.data)
@@ -93,7 +91,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['message'], "Method not allowed for requested url")
         self.assertEqual(data['success'], False)
 
-    def delete_question_works(self):
+    def test_delete_question_works(self):
         # post a question so it can be deleted
         question = {
             'question': 'Is Flask a Python framework?',
@@ -110,7 +108,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(data[0]['success'])
 
-    def delete_question_returns_404(self):
+    def test_delete_question_returns_404(self):
         # deletes a question that does not exist
         response = self.client().delete(f'/questions/{100}')
         data = json.loads(response.data)
@@ -118,9 +116,10 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['error'], 404)
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'Requested resource can not be found')
-# Make the tests conveniently executable
 
-    def play_quiz_by_category_works(self):
+    # Make the tests conveniently executable
+
+    def test_play_quiz_by_category_works(self):
         quiz = {
             'previous_questions': [1, 2, 3],
             'quiz_category': {
@@ -136,7 +135,7 @@ class TriviaTestCase(unittest.TestCase):
         # check if the question is not in the previous question
         self.assertTrue(data['question']['id'] not in quiz['previous_questions'])
 
-    def play_quiz_returns_400(self):
+    def test_play_quiz_returns_400(self):
         # play quiz with no given parameter
         response = self.client().post('/quizzes')
         data = json.loads(response.data)
